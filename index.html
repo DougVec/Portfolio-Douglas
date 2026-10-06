@@ -7,8 +7,20 @@
 <meta name="description" content="Portfólio de Douglas Vecchi">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<script>
+  try { if (localStorage.getItem("tema") === "light") document.documentElement.dataset.theme = "light"; } catch {}
+</script>
 <style>
-  :root { --bg: #000; --fg: #fff; --dim: #777; }
+  :root {
+    --bg: #000; --fg: #fff; --ink: 255,255,255; --dim: #777;
+    --line: #222; --border: #333; --faint: #555; --muted: #aaa; --foot: #444; --card: rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+  :root[data-theme="light"] {
+    --bg: #fff; --fg: #000; --ink: 0,0,0; --dim: #666;
+    --line: #e2e2e2; --border: #ddd; --faint: #999; --muted: #444; --foot: #aaa; --card: rgba(255, 255, 255, .7);
+    color-scheme: light;
+  }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
@@ -38,15 +50,15 @@
   }
   .proj {
     display: grid; grid-template-columns: 3rem 1fr; gap: 0 1rem;
-    padding: 2rem 0; border-top: 1px solid #222; background: rgba(0,0,0,.6);
+    padding: 2rem 0; border-top: 1px solid var(--line); background: var(--card);
   }
-  .proj:last-child { border-bottom: 1px solid #222; }
-  .proj .n { font: 0.8rem "JetBrains Mono", monospace; color: #555; padding-top: .55rem; }
+  .proj:last-child { border-bottom: 1px solid var(--line); }
+  .proj .n { font: 0.8rem "JetBrains Mono", monospace; color: var(--faint); padding-top: .55rem; }
   .proj h3 { font-size: clamp(1.5rem, 4vw, 2.2rem); font-weight: 500; letter-spacing: -0.02em; }
-  .proj p { color: #aaa; line-height: 1.6; margin: .75rem 0 1rem; max-width: 60ch; }
+  .proj p { color: var(--muted); line-height: 1.6; margin: .75rem 0 1rem; max-width: 60ch; }
   .shot {
     display: block; width: 100%; height: auto; margin-top: 1.25rem;
-    border: 1px solid #222; border-radius: 6px;
+    border: 1px solid var(--line); border-radius: 6px;
     filter: grayscale(1) contrast(1.05); transition: filter .6s ease;
   }
   .proj:hover .shot { filter: none; }
@@ -55,7 +67,7 @@
     display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; align-items: center;
     font: 0.75rem "JetBrains Mono", monospace; color: var(--dim);
   }
-  .proj .meta a { color: var(--fg); text-decoration: none; border-bottom: 1px solid #555; transition: border-color .3s; }
+  .proj .meta a { color: var(--fg); text-decoration: none; border-bottom: 1px solid var(--faint); transition: border-color .3s; }
   .proj .meta a:hover, .proj .meta a:focus-visible { border-color: var(--fg); outline: none; }
   .js .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.8,.2,1); }
   .js .reveal.in { opacity: 1; transform: none; }
@@ -63,7 +75,7 @@
   .avatar {
     width: clamp(88px, 18vw, 130px); height: auto; aspect-ratio: 1; border-radius: 50%;
     object-fit: cover; display: block; margin: 0 auto 1.75rem;
-    border: 1px solid #333; opacity: 0; animation: fade 1s forwards;
+    border: 1px solid var(--border); opacity: 0; animation: fade 1s forwards;
   }
   .tag {
     font: 0.8rem "JetBrains Mono", monospace; color: var(--dim);
@@ -108,6 +120,24 @@
   nav a:hover::after, nav a:focus-visible::after { transform: scaleX(1); transform-origin: left; }
   nav a:focus-visible { outline: none; }
 
+  /* Botão de tema */
+  .theme {
+    position: fixed; top: 16px; right: 16px; z-index: 15;
+    width: 40px; height: 40px; border-radius: 50%; padding: 0;
+    border: 1px solid var(--border); background: var(--bg); color: var(--fg); cursor: pointer;
+    display: grid; place-items: center; transition: transform .6s cubic-bezier(.2,.8,.2,1), border-color .3s;
+    opacity: 0; animation: fade 1s 1.6s forwards;
+  }
+  .theme:hover { border-color: var(--fg); }
+  .theme:focus-visible { outline: 1px solid var(--fg); outline-offset: 3px; }
+  .theme span {
+    width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid currentColor;
+    background: linear-gradient(90deg, currentColor 50%, transparent 50%);
+    transition: rotate .6s cubic-bezier(.2,.8,.2,1);
+  }
+  :root[data-theme="light"] .theme span { rotate: 180deg; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+
   /* Interações */
   .progress {
     position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 10;
@@ -146,7 +176,7 @@
 
   footer {
     padding: 0 16px 24px; text-align: center;
-    font: 0.7rem "JetBrains Mono", monospace; color: #444;
+    font: 0.7rem "JetBrains Mono", monospace; color: var(--foot);
   }
 
   @keyframes rise { to { transform: translateY(0); } }
@@ -156,7 +186,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .progress, .cursor, .ring { display: none; }
-    .avatar, .tag, h1 i, .role, .role::after, nav a, .cue, .cue::after, .js .reveal { transition: none !important; animation: none !important; opacity: 1 !important; transform: none !important; }
+    .theme, .avatar, .tag, h1 i, .role, .role::after, nav a, .cue, .cue::after, .js .reveal { transition: none !important; animation: none !important; opacity: 1 !important; transform: none !important; }
   }
 </style>
 </head>
@@ -164,6 +194,7 @@
 <script>document.documentElement.classList.add("js")</script>
 <canvas id="bg" aria-hidden="true"></canvas>
 <div class="progress" aria-hidden="true"></div>
+<button class="theme" type="button" aria-label="Alternar modo claro/escuro"><span></span></button>
 
 <main>
   <img class="avatar" src="foto.jpg" alt="Foto de Douglas Vecchi" width="130" height="130">
@@ -225,6 +256,29 @@
   document.querySelectorAll(".reveal").forEach(el => io.observe(el));
 
   const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const root = document.documentElement;
+  let ink = getComputedStyle(root).getPropertyValue("--ink").trim();
+
+  // Modo claro/escuro: círculo que se expande a partir do botão.
+  const themeBtn = document.querySelector(".theme");
+  const syncLabel = () => themeBtn.setAttribute("aria-pressed", root.dataset.theme === "light");
+  syncLabel();
+  themeBtn.addEventListener("click", () => {
+    const swap = () => {
+      const light = root.dataset.theme !== "light";
+      if (light) root.dataset.theme = "light"; else delete root.dataset.theme;
+      try { localStorage.setItem("tema", light ? "light" : "dark"); } catch {}
+      ink = getComputedStyle(root).getPropertyValue("--ink").trim();
+      syncLabel();
+    };
+    if (calm || !document.startViewTransition) return swap();
+    const r = themeBtn.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+    const end = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    document.startViewTransition(swap).ready.then(() => {
+      root.animate({ clipPath: [`circle(0 at ${x}px ${y}px)`, `circle(${end}px at ${x}px ${y}px)`] },
+        { duration: 700, easing: "cubic-bezier(.2,.8,.2,1)", pseudoElement: "::view-transition-new(root)" });
+    });
+  });
   const fine = matchMedia("(pointer: fine)").matches && !calm;
 
   // Letras do nome reagem ao passar o mouse (invertem preenchimento/contorno).
@@ -258,7 +312,7 @@
     addEventListener("mousemove", e => { mx = e.clientX; my = e.clientY; dot.style.transform = `translate(${mx}px,${my}px)`; });
     addEventListener("mousedown", () => ring.classList.add("down"));
     addEventListener("mouseup", () => ring.classList.remove("down"));
-    document.addEventListener("mouseover", e => ring.classList.toggle("hover", !!e.target.closest("a, .avatar")));
+    document.addEventListener("mouseover", e => ring.classList.toggle("hover", !!e.target.closest("a, .avatar, .theme")));
     (function follow() {
       rx += (mx - rx) * 0.18; ry += (my - ry) * 0.18;
       ring.style.transform = `translate(${rx}px,${ry}px)`;
@@ -299,6 +353,7 @@
   addEventListener("resize", resize);
   addEventListener("mousemove", e => { mouse.x = e.clientX; mouse.y = e.clientY; });
   addEventListener("pointerdown", e => {
+    if (e.target.closest(".theme")) return;
     waves.push({ x: e.clientX, y: e.clientY, r: 0 });
     for (const p of pts) {
       const dx = p.x - e.clientX, dy = p.y - e.clientY, d = Math.hypot(dx, dy) || 1;
@@ -318,10 +373,10 @@
       p.y = (p.y + p.vy + c.height) % c.height;
       // linhas do mouse até os pontos próximos
       if (d < 180) {
-        ctx.strokeStyle = `rgba(255,255,255,${0.35 * (1 - d / 180)})`;
+        ctx.strokeStyle = `rgba(${ink},${0.35 * (1 - d / 180)})`;
         ctx.beginPath(); ctx.moveTo(mouse.x, mouse.y); ctx.lineTo(p.x, p.y); ctx.stroke();
       }
-      ctx.fillStyle = "rgba(255,255,255,.5)";
+      ctx.fillStyle = `rgba(${ink},.5)`;
       ctx.fillRect(p.x, p.y, 1.5, 1.5);
     }
     // ponytail: O(n²) entre pontos, ok com ≤80 pontos
@@ -329,14 +384,14 @@
       for (let j = i + 1; j < pts.length; j++) {
         const d = Math.hypot(pts[i].x - pts[j].x, pts[i].y - pts[j].y);
         if (d < 130) {
-          ctx.strokeStyle = `rgba(255,255,255,${0.15 * (1 - d / 130)})`;
+          ctx.strokeStyle = `rgba(${ink},${0.15 * (1 - d / 130)})`;
           ctx.beginPath(); ctx.moveTo(pts[i].x, pts[i].y); ctx.lineTo(pts[j].x, pts[j].y); ctx.stroke();
         }
       }
     for (let i = waves.length - 1; i >= 0; i--) {
       const w = waves[i];
       w.r += 6;
-      ctx.strokeStyle = `rgba(255,255,255,${Math.max(0, 0.5 * (1 - w.r / 260))})`;
+      ctx.strokeStyle = `rgba(${ink},${Math.max(0, 0.5 * (1 - w.r / 260))})`;
       ctx.beginPath(); ctx.arc(w.x, w.y, w.r, 0, Math.PI * 2); ctx.stroke();
       if (w.r > 260) waves.splice(i, 1);
     }
