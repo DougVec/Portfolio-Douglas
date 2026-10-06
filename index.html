@@ -108,6 +108,42 @@
   nav a:hover::after, nav a:focus-visible::after { transform: scaleX(1); transform-origin: left; }
   nav a:focus-visible { outline: none; }
 
+  /* Interações */
+  .progress {
+    position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 10;
+    background: var(--fg); transform-origin: left; transform: scaleX(0);
+    animation: grow linear both; animation-timeline: scroll();
+  }
+  @keyframes grow { to { transform: scaleX(1); } }
+
+  .has-cursor, .has-cursor a { cursor: none; }
+  .cursor, .ring {
+    position: fixed; top: 0; left: 0; z-index: 20; pointer-events: none;
+    border-radius: 50%; mix-blend-mode: difference;
+  }
+  .cursor { width: 6px; height: 6px; margin: -3px 0 0 -3px; background: #fff; }
+  .ring {
+    width: 36px; height: 36px; margin: -18px 0 0 -18px; border: 1px solid #fff;
+    transition: width .3s, height .3s, margin .3s, background-color .3s;
+  }
+  .ring.hover { width: 64px; height: 64px; margin: -32px 0 0 -32px; background: #fff; }
+  .ring.down { width: 24px; height: 24px; margin: -12px 0 0 -12px; }
+
+  h1 .ch { display: inline-block; transition: transform .35s cubic-bezier(.2,.8,.2,1), color .35s; }
+  h1 .ch:hover { transform: translateY(-.08em) rotate(-4deg); }
+  h1 span:nth-child(1) .ch:hover { color: transparent; -webkit-text-stroke: 1px var(--fg); }
+  h1 span:nth-child(2) .ch:hover { color: var(--fg); }
+
+  .avatar { transition: scale .5s cubic-bezier(.2,.8,.2,1), rotate .5s cubic-bezier(.2,.8,.2,1), filter .5s; }
+  .avatar:hover { scale: 1.08; rotate: -4deg; }
+  nav a { transition: translate .3s cubic-bezier(.2,.8,.2,1); }
+
+  .proj h3 { transition: translate .4s cubic-bezier(.2,.8,.2,1); }
+  .proj:hover h3 { translate: 8px 0; }
+  .proj .n { transition: color .4s; }
+  .proj:hover .n { color: var(--fg); }
+  .shot { transition: filter .6s ease, transform .4s cubic-bezier(.2,.8,.2,1); will-change: transform; }
+
   footer {
     padding: 0 16px 24px; text-align: center;
     font: 0.7rem "JetBrains Mono", monospace; color: #444;
@@ -119,6 +155,7 @@
   @keyframes bob { 50% { transform: translateY(5px); } }
 
   @media (prefers-reduced-motion: reduce) {
+    .progress, .cursor, .ring { display: none; }
     .avatar, .tag, h1 i, .role, .role::after, nav a, .cue, .cue::after, .js .reveal { transition: none !important; animation: none !important; opacity: 1 !important; transform: none !important; }
   }
 </style>
@@ -126,6 +163,7 @@
 <body>
 <script>document.documentElement.classList.add("js")</script>
 <canvas id="bg" aria-hidden="true"></canvas>
+<div class="progress" aria-hidden="true"></div>
 
 <main>
   <img class="avatar" src="foto.jpg" alt="Foto de Douglas Vecchi" width="130" height="130">
@@ -186,7 +224,68 @@
   }), { threshold: 0.15 });
   document.querySelectorAll(".reveal").forEach(el => io.observe(el));
 
+  const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const fine = matchMedia("(pointer: fine)").matches && !calm;
+
+  // Letras do nome reagem ao passar o mouse (invertem preenchimento/contorno).
+  document.querySelectorAll("h1 i").forEach(i => {
+    i.innerHTML = [...i.textContent].map(ch => `<span class="ch">${ch}</span>`).join("");
+  });
+
+  // Links "embaralham" as letras ao passar o mouse.
+  const glyphs = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&*+<>/";
+  document.querySelectorAll("nav a, .proj h3").forEach(el => {
+    const text = el.textContent;
+    let t;
+    el.closest(".proj, nav a").addEventListener("mouseenter", () => {
+      if (calm) return;
+      let n = 0;
+      clearInterval(t);
+      t = setInterval(() => {
+        el.textContent = [...text].map((ch, i) => i < n || ch === " " ? ch : glyphs[Math.random() * glyphs.length | 0]).join("");
+        if (++n > text.length) clearInterval(t);
+      }, 28);
+    });
+  });
+
+  if (fine) {
+    // Cursor próprio: ponto + anel que segue com atraso.
+    const dot = document.createElement("div"), ring = document.createElement("div");
+    dot.className = "cursor"; ring.className = "ring";
+    document.body.append(dot, ring);
+    document.documentElement.classList.add("has-cursor");
+    let rx = innerWidth / 2, ry = innerHeight / 2, mx = rx, my = ry;
+    addEventListener("mousemove", e => { mx = e.clientX; my = e.clientY; dot.style.transform = `translate(${mx}px,${my}px)`; });
+    addEventListener("mousedown", () => ring.classList.add("down"));
+    addEventListener("mouseup", () => ring.classList.remove("down"));
+    document.addEventListener("mouseover", e => ring.classList.toggle("hover", !!e.target.closest("a, .avatar")));
+    (function follow() {
+      rx += (mx - rx) * 0.18; ry += (my - ry) * 0.18;
+      ring.style.transform = `translate(${rx}px,${ry}px)`;
+      requestAnimationFrame(follow);
+    })();
+
+    // Links magnéticos: puxam em direção ao mouse.
+    document.querySelectorAll("nav a, .cue").forEach(a => {
+      a.addEventListener("mousemove", e => {
+        const r = a.getBoundingClientRect();
+        a.style.translate = `${(e.clientX - r.left - r.width / 2) * 0.35}px ${(e.clientY - r.top - r.height / 2) * 0.5}px`;
+      });
+      a.addEventListener("mouseleave", () => a.style.translate = "");
+    });
+
+    // Prints dos projetos inclinam em 3D seguindo o mouse.
+    document.querySelectorAll(".shot").forEach(img => {
+      img.addEventListener("mousemove", e => {
+        const r = img.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+        img.style.transform = `perspective(900px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg) scale(1.02)`;
+      });
+      img.addEventListener("mouseleave", () => img.style.transform = "");
+    });
+  }
+
   // Pontos que flutuam e se ligam com linhas; fogem do mouse.
+  // Clique/toque solta uma onda que empurra os pontos.
   const c = document.getElementById("bg"), ctx = c.getContext("2d");
   const mouse = { x: -999, y: -999 };
   let pts = [];
@@ -194,11 +293,19 @@
     c.width = innerWidth; c.height = innerHeight;
     pts = Array.from({ length: Math.min(80, (innerWidth * innerHeight) / 15000) }, () => ({
       x: Math.random() * c.width, y: Math.random() * c.height,
-      vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3,
+      bx: (Math.random() - 0.5) * 0.3, by: (Math.random() - 0.5) * 0.3, vx: 0, vy: 0,
     }));
   }
   addEventListener("resize", resize);
   addEventListener("mousemove", e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+  addEventListener("pointerdown", e => {
+    waves.push({ x: e.clientX, y: e.clientY, r: 0 });
+    for (const p of pts) {
+      const dx = p.x - e.clientX, dy = p.y - e.clientY, d = Math.hypot(dx, dy) || 1;
+      if (d < 260) { p.vx += dx / d * 6 * (1 - d / 260); p.vy += dy / d * 6 * (1 - d / 260); }
+    }
+  });
+  const waves = [];
   resize();
 
   function frame() {
@@ -206,8 +313,14 @@
     for (const p of pts) {
       const dx = p.x - mouse.x, dy = p.y - mouse.y, d = Math.hypot(dx, dy);
       if (d < 120) { p.x += dx / d; p.y += dy / d; }
+      p.vx += (p.bx - p.vx) * 0.04; p.vy += (p.by - p.vy) * 0.04;
       p.x = (p.x + p.vx + c.width) % c.width;
       p.y = (p.y + p.vy + c.height) % c.height;
+      // linhas do mouse até os pontos próximos
+      if (d < 180) {
+        ctx.strokeStyle = `rgba(255,255,255,${0.35 * (1 - d / 180)})`;
+        ctx.beginPath(); ctx.moveTo(mouse.x, mouse.y); ctx.lineTo(p.x, p.y); ctx.stroke();
+      }
       ctx.fillStyle = "rgba(255,255,255,.5)";
       ctx.fillRect(p.x, p.y, 1.5, 1.5);
     }
@@ -220,9 +333,16 @@
           ctx.beginPath(); ctx.moveTo(pts[i].x, pts[i].y); ctx.lineTo(pts[j].x, pts[j].y); ctx.stroke();
         }
       }
+    for (let i = waves.length - 1; i >= 0; i--) {
+      const w = waves[i];
+      w.r += 6;
+      ctx.strokeStyle = `rgba(255,255,255,${Math.max(0, 0.5 * (1 - w.r / 260))})`;
+      ctx.beginPath(); ctx.arc(w.x, w.y, w.r, 0, Math.PI * 2); ctx.stroke();
+      if (w.r > 260) waves.splice(i, 1);
+    }
     requestAnimationFrame(frame);
   }
-  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) frame();
+  if (!calm) frame();
 </script>
 </body>
 </html>
