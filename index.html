@@ -10,18 +10,51 @@
 <style>
   :root { --bg: #000; --fg: #fff; --dim: #777; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { height: 100%; }
+  html { scroll-behavior: smooth; }
   body {
     background: var(--bg); color: var(--fg);
     font-family: "Space Grotesk", system-ui, sans-serif;
-    display: grid; place-items: center; grid-template-rows: 1fr auto; min-height: 100vh; overflow-x: hidden;
+    overflow-x: hidden;
     cursor: default;
   }
   canvas { position: fixed; inset: 0; z-index: 0; }
-  main { position: relative; z-index: 1; padding: 48px 16px; text-align: center; }
+  main, section, footer { position: relative; z-index: 1; }
+  main {
+    min-height: 100vh; padding: 48px 16px 112px; text-align: center;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .cue {
+    position: absolute; bottom: 24px; left: 50%; translate: -50% 0;
+    font: 0.7rem "JetBrains Mono", monospace; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--dim); text-decoration: none;
+    opacity: 0; animation: fade 1s 1.8s forwards;
+  }
+  .cue::after { content: "↓"; display: block; margin-top: 6px; animation: bob 2s ease-in-out infinite; }
+
+  #projetos { max-width: 860px; margin: 0 auto; padding: 96px 16px; }
+  #projetos h2 {
+    font: 0.8rem "JetBrains Mono", monospace; color: var(--dim);
+    letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 2.5rem;
+  }
+  .proj {
+    display: grid; grid-template-columns: 3rem 1fr; gap: 0 1rem;
+    padding: 2rem 0; border-top: 1px solid #222; background: rgba(0,0,0,.6);
+  }
+  .proj:last-child { border-bottom: 1px solid #222; }
+  .proj .n { font: 0.8rem "JetBrains Mono", monospace; color: #555; padding-top: .55rem; }
+  .proj h3 { font-size: clamp(1.5rem, 4vw, 2.2rem); font-weight: 500; letter-spacing: -0.02em; }
+  .proj p { color: #aaa; line-height: 1.6; margin: .75rem 0 1rem; max-width: 60ch; }
+  .proj .meta {
+    display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; align-items: center;
+    font: 0.75rem "JetBrains Mono", monospace; color: var(--dim);
+  }
+  .proj .meta a { color: var(--fg); text-decoration: none; border-bottom: 1px solid #555; transition: border-color .3s; }
+  .proj .meta a:hover, .proj .meta a:focus-visible { border-color: var(--fg); outline: none; }
+  .js .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.8,.2,1); }
+  .js .reveal.in { opacity: 1; transform: none; }
 
   .avatar {
-    width: clamp(88px, 18vw, 130px); aspect-ratio: 1; border-radius: 50%;
+    width: clamp(88px, 18vw, 130px); height: auto; aspect-ratio: 1; border-radius: 50%;
     object-fit: cover; display: block; margin: 0 auto 1.75rem;
     border: 1px solid #333; opacity: 0; animation: fade 1s forwards;
   }
@@ -69,20 +102,22 @@
   nav a:focus-visible { outline: none; }
 
   footer {
-    position: relative; z-index: 1; padding-bottom: 16px; text-align: center;
+    padding: 0 16px 24px; text-align: center;
     font: 0.7rem "JetBrains Mono", monospace; color: #444;
   }
 
   @keyframes rise { to { transform: translateY(0); } }
   @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   @keyframes blink { 50% { opacity: 0; } }
+  @keyframes bob { 50% { transform: translateY(5px); } }
 
   @media (prefers-reduced-motion: reduce) {
-    .avatar, .tag, h1 i, .role, .role::after, nav a { animation: none !important; opacity: 1 !important; transform: none !important; }
+    .avatar, .tag, h1 i, .role, .role::after, nav a, .cue, .cue::after, .js .reveal { transition: none !important; animation: none !important; opacity: 1 !important; transform: none !important; }
   }
 </style>
 </head>
 <body>
+<script>document.documentElement.classList.add("js")</script>
 <canvas id="bg" aria-hidden="true"></canvas>
 
 <main>
@@ -96,12 +131,50 @@
     <a href="https://www.linkedin.com/in/douglasvecchi" target="_blank" rel="noopener">LinkedIn</a>
     <a href="mailto:dougvecchi21@gmail.com">Email</a>
   </nav>
+  <a class="cue" href="#projetos">Projetos</a>
 </main>
+
+<section id="projetos">
+  <h2 class="reveal">Projetos</h2>
+
+  <article class="proj reveal">
+    <span class="n">01</span>
+    <div>
+      <h3>OdontoAgenda</h3>
+      <p>Agendamento odontológico. O paciente encontra dentistas por cidade, especialidade e plano e marca a consulta; o dentista gerencia agenda, assistentes e financeiro.</p>
+      <div class="meta"><span>Node.js · SQLite · zero dependências</span><span>Repositório privado</span></div>
+    </div>
+  </article>
+
+  <article class="proj reveal">
+    <span class="n">02</span>
+    <div>
+      <h3>Cérebro Seguros</h3>
+      <p>Servidor MCP para seguro garantia. Confronta edital, propostas, contratos e apólices em PDF, consulta CNPJ e índices do IBGE e gera relatórios e minutas em PDF.</p>
+      <div class="meta"><span>TypeScript · MCP · n8n · Docker</span><span>Repositório privado</span></div>
+    </div>
+  </article>
+
+  <article class="proj reveal">
+    <span class="n">03</span>
+    <div>
+      <h3>Gerador de Certificados</h3>
+      <p>Cria certificados a partir de um formulário, com pré-visualização em tempo real e lista dos certificados já gerados.</p>
+      <div class="meta"><span>Angular 20 · TypeScript</span><a href="https://github.com/DougVec/Gerador-de-Certificados-Angular" target="_blank" rel="noopener">Ver código ↗</a></div>
+    </div>
+  </article>
+</section>
 
 <footer>© <span id="y"></span> Douglas Vecchi</footer>
 
 <script>
   document.getElementById("y").textContent = new Date().getFullYear();
+
+  // Projetos aparecem ao rolar.
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+  }), { threshold: 0.15 });
+  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
 
   // Pontos que flutuam e se ligam com linhas; fogem do mouse.
   const c = document.getElementById("bg"), ctx = c.getContext("2d");
