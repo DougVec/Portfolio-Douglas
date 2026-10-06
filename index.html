@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Douglas Vecchi</title>
+<meta name="description" content="Portfólio de Douglas Vecchi">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #000; --fg: #fff; --dim: #777; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg); color: var(--fg);
+    font-family: "Space Grotesk", system-ui, sans-serif;
+    display: grid; place-items: center; overflow: hidden;
+    cursor: default;
+  }
+  canvas { position: fixed; inset: 0; z-index: 0; }
+  main { position: relative; z-index: 1; padding: 0 16px; text-align: center; }
+
+  .tag {
+    font: 0.8rem "JetBrains Mono", monospace; color: var(--dim);
+    letter-spacing: 0.3em; text-transform: uppercase;
+    opacity: 0; animation: fade 1s 0.2s forwards;
+  }
+  h1 {
+    font-size: clamp(3rem, 12vw, 8rem); font-weight: 700;
+    line-height: 0.95; letter-spacing: -0.04em; margin: 1.5rem 0;
+  }
+  h1 span { display: block; overflow: hidden; padding-bottom: 0.12em; }
+  h1 span i {
+    display: inline-block; font-style: normal;
+    transform: translateY(110%); animation: rise 1s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  h1 span:nth-child(2) i { animation-delay: 0.15s; -webkit-text-stroke: 1px var(--fg); color: transparent; }
+
+  .role {
+    font: 0.95rem "JetBrains Mono", monospace; color: var(--dim);
+    opacity: 0; animation: fade 1s 0.8s forwards;
+  }
+  .role::after { content: "_"; animation: blink 1s steps(1) infinite; }
+
+  nav {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem;
+    margin-top: 3.5rem;
+  }
+  nav a {
+    position: relative; color: var(--fg); text-decoration: none;
+    font-weight: 300; font-size: 1.05rem; letter-spacing: 0.05em;
+    opacity: 0; animation: fade 0.8s forwards;
+  }
+  nav a:nth-child(1) { animation-delay: 1.1s; }
+  nav a:nth-child(2) { animation-delay: 1.2s; }
+  nav a:nth-child(3) { animation-delay: 1.3s; }
+  nav a:nth-child(4) { animation-delay: 1.4s; }
+  nav a::after {
+    content: ""; position: absolute; left: 0; bottom: -4px;
+    width: 100%; height: 1px; background: var(--fg);
+    transform: scaleX(0); transform-origin: right; transition: transform .4s ease;
+  }
+  nav a:hover::after, nav a:focus-visible::after { transform: scaleX(1); transform-origin: left; }
+  nav a:focus-visible { outline: none; }
+
+  footer {
+    position: fixed; bottom: 16px; left: 0; right: 0; z-index: 1; text-align: center;
+    font: 0.7rem "JetBrains Mono", monospace; color: #444;
+  }
+
+  @keyframes rise { to { transform: translateY(0); } }
+  @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tag, h1 i, .role, .role::after, nav a { animation: none !important; opacity: 1 !important; transform: none !important; }
+  }
+</style>
+</head>
+<body>
+<canvas id="bg" aria-hidden="true"></canvas>
+
+<main>
+  <p class="tag">Portfólio</p>
+  <h1><span><i>Douglas</i></span><span><i>Vecchi</i></span></h1>
+  <p class="role">desenvolvedor</p>
+  <nav>
+    <a href="https://instagram.com/SEU_USUARIO" target="_blank" rel="noopener">Instagram</a>
+    <a href="https://github.com/dougvec" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://linkedin.com/in/SEU_USUARIO" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="mailto:dougvecchi21@gmail.com">Email</a>
+  </nav>
+</main>
+
+<footer>© <span id="y"></span> Douglas Vecchi</footer>
+
+<script>
+  document.getElementById("y").textContent = new Date().getFullYear();
+
+  // Pontos que flutuam e se ligam com linhas; fogem do mouse.
+  const c = document.getElementById("bg"), ctx = c.getContext("2d");
+  const mouse = { x: -999, y: -999 };
+  let pts = [];
+  function resize() {
+    c.width = innerWidth; c.height = innerHeight;
+    pts = Array.from({ length: Math.min(80, (innerWidth * innerHeight) / 15000) }, () => ({
+      x: Math.random() * c.width, y: Math.random() * c.height,
+      vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3,
+    }));
+  }
+  addEventListener("resize", resize);
+  addEventListener("mousemove", e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+  resize();
+
+  function frame() {
+    ctx.clearRect(0, 0, c.width, c.height);
+    for (const p of pts) {
+      const dx = p.x - mouse.x, dy = p.y - mouse.y, d = Math.hypot(dx, dy);
+      if (d < 120) { p.x += dx / d; p.y += dy / d; }
+      p.x = (p.x + p.vx + c.width) % c.width;
+      p.y = (p.y + p.vy + c.height) % c.height;
+      ctx.fillStyle = "rgba(255,255,255,.5)";
+      ctx.fillRect(p.x, p.y, 1.5, 1.5);
+    }
+    // ponytail: O(n²) entre pontos, ok com ≤80 pontos
+    for (let i = 0; i < pts.length; i++)
+      for (let j = i + 1; j < pts.length; j++) {
+        const d = Math.hypot(pts[i].x - pts[j].x, pts[i].y - pts[j].y);
+        if (d < 130) {
+          ctx.strokeStyle = `rgba(255,255,255,${0.15 * (1 - d / 130)})`;
+          ctx.beginPath(); ctx.moveTo(pts[i].x, pts[i].y); ctx.lineTo(pts[j].x, pts[j].y); ctx.stroke();
+        }
+      }
+    requestAnimationFrame(frame);
+  }
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) frame();
+</script>
+</body>
+</html>
