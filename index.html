@@ -44,6 +44,13 @@
   .proj .n { font: 0.8rem "JetBrains Mono", monospace; color: #555; padding-top: .55rem; }
   .proj h3 { font-size: clamp(1.5rem, 4vw, 2.2rem); font-weight: 500; letter-spacing: -0.02em; }
   .proj p { color: #aaa; line-height: 1.6; margin: .75rem 0 1rem; max-width: 60ch; }
+  .shot {
+    display: block; width: 100%; height: auto; margin-top: 1.25rem;
+    border: 1px solid #222; border-radius: 6px;
+    filter: grayscale(1) contrast(1.05); transition: filter .6s ease;
+  }
+  .proj:hover .shot { filter: none; }
+  @media (max-width: 600px) { .proj { grid-template-columns: 1.75rem 1fr; gap: 0 .5rem; } }
   .proj .meta {
     display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; align-items: center;
     font: 0.75rem "JetBrains Mono", monospace; color: var(--dim);
@@ -143,6 +150,7 @@
       <h3>OdontoAgenda</h3>
       <p>Agendamento odontológico. O paciente encontra dentistas por cidade, especialidade e plano e marca a consulta; o dentista gerencia agenda, assistentes e financeiro.</p>
       <div class="meta"><span>Node.js · SQLite · zero dependências</span><span>Repositório privado</span></div>
+      <img class="shot" src="img/odontoagenda.jpg" alt="Painel do dentista no OdontoAgenda" width="1100" height="690" loading="lazy">
     </div>
   </article>
 
@@ -152,6 +160,7 @@
       <h3>Cérebro Seguros</h3>
       <p>Servidor MCP para seguro garantia. Confronta edital, propostas, contratos e apólices em PDF, consulta CNPJ e índices do IBGE e gera relatórios e minutas em PDF.</p>
       <div class="meta"><span>TypeScript · MCP · n8n · Docker</span><span>Repositório privado</span></div>
+      <img class="shot" src="img/cerebro-seguros.jpg" alt="Relatório de análise técnica gerado pelo Cérebro Seguros" width="1100" height="690" loading="lazy">
     </div>
   </article>
 
@@ -161,6 +170,7 @@
       <h3>Gerador de Certificados</h3>
       <p>Cria certificados a partir de um formulário, com pré-visualização em tempo real e lista dos certificados já gerados.</p>
       <div class="meta"><span>Angular 20 · TypeScript</span><a href="https://github.com/DougVec/Gerador-de-Certificados-Angular" target="_blank" rel="noopener">Ver código ↗</a></div>
+      <img class="shot" src="img/certificados.jpg" alt="Formulário e pré-visualização do Gerador de Certificados" width="1100" height="690" loading="lazy">
     </div>
   </article>
 </section>
