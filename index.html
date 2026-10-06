@@ -14,12 +14,17 @@
   body {
     background: var(--bg); color: var(--fg);
     font-family: "Space Grotesk", system-ui, sans-serif;
-    display: grid; place-items: center; overflow: hidden;
+    display: grid; place-items: center; grid-template-rows: 1fr auto; min-height: 100vh; overflow-x: hidden;
     cursor: default;
   }
   canvas { position: fixed; inset: 0; z-index: 0; }
-  main { position: relative; z-index: 1; padding: 0 16px; text-align: center; }
+  main { position: relative; z-index: 1; padding: 48px 16px; text-align: center; }
 
+  .avatar {
+    width: clamp(88px, 18vw, 130px); aspect-ratio: 1; border-radius: 50%;
+    object-fit: cover; display: block; margin: 0 auto 1.75rem;
+    border: 1px solid #333; opacity: 0; animation: fade 1s forwards;
+  }
   .tag {
     font: 0.8rem "JetBrains Mono", monospace; color: var(--dim);
     letter-spacing: 0.3em; text-transform: uppercase;
@@ -64,7 +69,7 @@
   nav a:focus-visible { outline: none; }
 
   footer {
-    position: fixed; bottom: 16px; left: 0; right: 0; z-index: 1; text-align: center;
+    position: relative; z-index: 1; padding-bottom: 16px; text-align: center;
     font: 0.7rem "JetBrains Mono", monospace; color: #444;
   }
 
@@ -73,7 +78,7 @@
   @keyframes blink { 50% { opacity: 0; } }
 
   @media (prefers-reduced-motion: reduce) {
-    .tag, h1 i, .role, .role::after, nav a { animation: none !important; opacity: 1 !important; transform: none !important; }
+    .avatar, .tag, h1 i, .role, .role::after, nav a { animation: none !important; opacity: 1 !important; transform: none !important; }
   }
 </style>
 </head>
@@ -81,6 +86,7 @@
 <canvas id="bg" aria-hidden="true"></canvas>
 
 <main>
+  <img class="avatar" src="foto.jpg" alt="Foto de Douglas Vecchi" width="130" height="130">
   <p class="tag">Portfólio</p>
   <h1><span><i>Douglas</i></span><span><i>Vecchi</i></span></h1>
   <p class="role">desenvolvedor</p>
